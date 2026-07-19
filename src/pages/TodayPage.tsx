@@ -16,25 +16,27 @@ export default function TodayPage() {
 
   if (!memory) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-8 text-center">
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-sm uppercase tracking-wide text-[var(--color-muted)]">
-            {formatDateLabel(date)}
-          </p>
-          <p className="text-xs uppercase tracking-widest text-[var(--color-accent)]">
+      <div className="flex h-full flex-col items-center justify-between py-6 text-center">
+        <p className="text-[13px] tracking-wide text-[var(--color-muted)]">
+          {formatDateLabel(date)}
+        </p>
+
+        <div className="flex flex-col items-center gap-5 px-2">
+          <p className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-accent)]">
             Today&rsquo;s prompt
           </p>
-          <h1 className="font-serif text-3xl leading-snug text-[var(--color-ink)]">
+          <h1 className="text-balance font-serif text-[28px] italic leading-[1.32] text-[var(--color-ink)]">
             {prompt.text}
           </h1>
+          <p className="max-w-[22ch] text-sm leading-relaxed text-[var(--color-muted)]">
+            Carry this with you. Come back when you know what today meant.
+          </p>
         </div>
-        <p className="max-w-xs text-[var(--color-muted)]">
-          Carry this with you. Come back when you know what today meant.
-        </p>
+
         <button
           type="button"
           onClick={() => navigate(`/add?date=${date}&type=daily`)}
-          className="min-h-11 rounded-full bg-[var(--color-accent)] px-8 py-3 font-medium text-white"
+          className="min-h-11 rounded-full bg-[var(--color-accent)] px-8 py-3 text-sm font-medium text-white"
         >
           Add Today&rsquo;s Memory
         </button>
