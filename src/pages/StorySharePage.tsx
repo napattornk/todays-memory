@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toBlob } from 'html-to-image'
 import { useMemoryById } from '@/hooks/useMemories'
@@ -7,7 +7,7 @@ import { useSettings } from '@/hooks/useSettings'
 import { shareService } from '@/services'
 import { STORY_TEMPLATES } from '@/features/sharing/templates'
 import { buildStoryViewModel } from '@/features/sharing/buildStoryViewModel'
-import { STORY_WIDTH, STORY_HEIGHT } from '@/utils/image'
+import { STORY_WIDTH, STORY_HEIGHT, blobToDataUrl } from '@/utils/image'
 import type { StoryBackground, StoryTemplateId } from '@/types/memory'
 
 const BACKGROUNDS: StoryBackground[] = ['white', 'cream', 'black', 'warm-beige']
@@ -26,13 +26,39 @@ export default function StorySharePage() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
+  const [photoDataUrl, setPhotoDataUrl] = useState<string | undefined>(undefined)
 
   const effectiveBackground = background ?? settings.preferredStoryBackground
 
+  useEffect(() => {
+    // html-to-image needs to embed the photo as pixel data during capture.
+    // Handing it a blob:/native-asset URL makes it re-fetch that resource
+    // internally, which silently fails for local blob/asset schemes and
+    // leaves the photo missing from the generated Story image. Pre-resolving
+    // to a data: URL here means there's nothing left to fetch — the image is
+    // already inline.
+    let cancelled = false
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting before an async refetch, not deriving render state
+    setPhotoDataUrl(undefined)
+    if (!photoUrl) return
+    fetch(photoUrl)
+      .then((res) => res.blob())
+      .then(blobToDataUrl)
+      .then((dataUrl) => {
+        if (!cancelled) setPhotoDataUrl(dataUrl)
+      })
+      .catch(() => {
+        if (!cancelled) setError('Could not load this memory’s photo for the Story preview.')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [photoUrl])
+
   const model = useMemo(() => {
-    if (!memory || !photoUrl) return null
-    return buildStoryViewModel(memory, photoUrl, effectiveBackground)
-  }, [memory, photoUrl, effectiveBackground])
+    if (!memory || !photoDataUrl) return null
+    return buildStoryViewModel(memory, photoDataUrl, effectiveBackground)
+  }, [memory, photoDataUrl, effectiveBackground])
 
   const Template = STORY_TEMPLATES.find((t) => t.id === templateId)!.Component
 
@@ -129,11 +155,27 @@ export default function StorySharePage() {
                 transformOrigin: 'top left',
               }}
             >
-              <Template model={model} ref={nodeRef} />
+              {/* Visual-only preview. Not the capture target — see note below. */}
+              <Template model={model} />
             </div>
           </div>
         )}
       </div>
+
+      {/*
+        html-to-image captures whatever is actually laid out in the DOM. A
+        node nested inside a scaled + overflow:hidden preview wrapper only
+        has its small clipped on-screen area available to capture, so most
+        of the 1080x1920 image (including the photo, which sits lower in
+        every template) came out blank. This full-size, unscaled, unclipped
+        copy — parked off-screen rather than visually shown — is the actual
+        capture source, decoupled from the preview above.
+      */}
+      {model && (
+        <div style={{ position: 'fixed', top: 0, left: -99999, pointerEvents: 'none' }} aria-hidden="true">
+          <Template model={model} ref={nodeRef} />
+        </div>
+      )}
 
       <div className="flex justify-center gap-3 px-1" role="tablist" aria-label="Story template">
         {STORY_TEMPLATES.map((t) => (
