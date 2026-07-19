@@ -1,0 +1,85 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Calm, warm, editorial palette. No bright social gradients. */
+  --color-paper: #faf7f2;
+  --color-paper-dark: #17151a;
+  --color-ink: #241f28;
+  --color-ink-dark: #f1ede6;
+  --color-muted: #7a7480;
+  --color-muted-dark: #a39cae;
+  --color-line: #e7e1d8;
+  --color-line-dark: #2c2830;
+  --color-accent: #a9714a;
+  --color-accent-dark: #d3a67e;
+  --color-cream: #f4ecdd;
+  --color-warm-beige: #ecdfc8;
+
+  --font-serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+/*
+ * Components reference the base tokens (--color-paper, --color-line, etc.)
+ * directly, not the *-dark variants. Re-pointing the base tokens here means
+ * every usage automatically gets a properly contrasted dark palette instead
+ * of quietly falling back to light-mode line/muted/accent colors on a dark
+ * background (which is what made the dark theme look nearly monochrome).
+ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #17151a;
+    --color-ink: #f1ede6;
+    --color-muted: #b7b0c2;
+    --color-line: #45404e;
+    --color-accent: #d3a67e;
+    --color-cream: #2c2830;
+    --color-warm-beige: #332c26;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* Safe-area aware layout tokens, used by the app shell */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Visible focus state for keyboard/screen-reader users */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
