@@ -138,11 +138,11 @@ export default function MemoryDetailPage() {
 
       {error && <p className="px-1 text-sm text-red-600" role="alert">{error}</p>}
 
-      <div className="flex gap-3 px-1">
+      <div className="flex flex-col items-center gap-2 px-1">
         <button
           type="button"
           onClick={() => navigate(`/story/${memory.id}`)}
-          className="min-h-11 flex-1 rounded-full bg-[var(--color-accent)] px-4 py-2 font-medium text-white"
+          className="min-h-11 w-full rounded-full bg-[var(--color-accent)] px-4 py-2 font-medium text-white"
         >
           Share
         </button>
@@ -150,9 +150,9 @@ export default function MemoryDetailPage() {
           <button
             type="button"
             onClick={() => setConfirmingDelete(true)}
-            className="min-h-11 flex-1 rounded-full border border-red-300 px-4 py-2 text-red-600"
+            className="min-h-11 px-3 text-sm text-red-600/80 hover:text-red-600"
           >
-            Delete
+            Delete memory
           </button>
         )}
       </div>

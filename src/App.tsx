@@ -11,6 +11,7 @@ import SettingsPage from '@/pages/SettingsPage'
 import StorySharePage from '@/pages/StorySharePage'
 import { memoryStorageService, notificationService, platformService } from '@/services'
 import { loadOnboardingStatus, useOnboardingStatus } from '@/features/onboarding/onboardingStore'
+import ToastHost from '@/features/toast/ToastHost'
 
 function Gate({ children }: { children: React.ReactNode }) {
   const onboarded = useOnboardingStatus()
@@ -60,6 +61,7 @@ function Gate({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <HashRouter>
+      <ToastHost />
       <Gate>
         <Routes>
           <Route path="/onboarding" element={<OnboardingPage />} />

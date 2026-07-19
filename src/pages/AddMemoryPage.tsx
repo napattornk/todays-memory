@@ -4,7 +4,8 @@ import { photoService } from '@/services'
 import { saveNewMemory } from '@/features/memories/saveMemory'
 import { useMemoryDraft, startDraft, updateDraft, clearDraft } from '@/features/memories/draftStore'
 import { promptForDate } from '@/features/prompts/promptEngine'
-import { formatDateLabel } from '@/utils/date'
+import { formatDateLabel, todayLocalDate } from '@/utils/date'
+import { showToast } from '@/features/toast/toastStore'
 import type { MemoryType } from '@/types/memory'
 
 const CAPTION_MAX = 160
@@ -47,14 +48,16 @@ export default function AddMemoryPage() {
     setSaving(true)
     setError(null)
     try {
-      const memory = await saveNewMemory({
+      await saveNewMemory({
         date,
         type,
         sourceWebPath: draft.photoWebPath,
         caption: draft.caption,
       })
       clearDraft()
-      navigate(`/memory/${memory.id}`, { replace: true })
+      const isToday = date === todayLocalDate()
+      showToast(isToday ? 'Today is remembered.' : 'Memory saved.')
+      navigate(isToday ? '/today' : '/calendar', { replace: true })
     } catch (err) {
       setError(
         err instanceof Error
